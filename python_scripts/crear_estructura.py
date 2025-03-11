@@ -1,6 +1,8 @@
 import os
 import subprocess
 import sys
+import openpyxl
+from openpyxl.styles import Alignment
 
 # Intentar importar openpyxl, si no está instalado, lo instala
 try:
@@ -24,7 +26,9 @@ def create_project_structure(project_name):
 
     # Define subdirectories under doc, comms, and reports
     doc_subdirectories = [
-        "architecture", "gantt"  # Puedes agregar más módulos según necesites
+        "1.product_vision","2.release_planning", "3.roadmap","4.user_stories","5.product_backlog",
+        "6.sprint_planning","7.sprint_backlog","8.definition_of_done","9.product_design","10.testing",
+         "11.documentation", "12.release_deployment", "13.maintenance_monitoring"      
     ]
     coms_subdirectories = [
         "meeting_minutes", "progress_reports", "presentations"  # Puedes agregar más módulos según necesites
@@ -49,18 +53,46 @@ def create_project_structure(project_name):
     for subdir in reports_subdirectories:
         os.makedirs(f"{project_name}/4.reports/{subdir}", exist_ok=True)
 
-    # Create the Excel file in the resources folder
+    # Crear el archivo Excel en la carpeta de recursos
     excel_path = f"{project_name}/5.resources/Resources.xlsx"
     wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Resources"
 
-    # Agregar algunas celdas iniciales para el archivo Excel
-    ws['A1'] = "Resource Name"
-    ws['B1'] = "Resource Type"
-    ws['C1'] = "Description"
-    ws['D1'] = "Quantity"
+    # Crear la hoja "Resources"
+    ws_resources = wb.active
+    ws_resources.title = "Resources"
+    ws_resources['A1'] = "Resource Name"
+    ws_resources['B1'] = "Resource Type"
+    ws_resources['C1'] = "Description"
+    ws_resources['D1'] = "Quantity"
     
+    # Agregar algunas celdas iniciales para el archivo Excel
+    ws_resources['A1'].alignment = Alignment(horizontal='center', vertical='center')
+    ws_resources['B1'].alignment = Alignment(horizontal='center', vertical='center')
+    ws_resources['C1'].alignment = Alignment(horizontal='center', vertical='center')
+    ws_resources['D1'].alignment = Alignment(horizontal='center', vertical='center')
+
+    # Crear la hoja de "Seguimiento del Proyecto"
+    ws_tracking = wb.create_sheet(title="Project Tracking")
+    
+    # Definir los encabezados de las columnas
+    headers = ["Task ID", "Task Name", "Assigned To", "Start Date", "Due Date", "Status", "Comments"]
+    ws_tracking.append(headers)
+
+    # Ajustar el alineamiento de los encabezados
+    for cell in ws_tracking[1]:
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+
+    # Ejemplo de reporte de seguimiento del proyecto (esto es un ejemplo, puedes modificarlo)
+    tasks = [
+        [1, "Definir visión del producto", "Juan Pérez", "2025-03-01", "2025-03-05", "Completed", "Visión aprobada por los stakeholders."],
+        [2, "Planificación de la primera versión", "Ana Gómez", "2025-03-06", "2025-03-10", "In Progress", "Se están finalizando los requisitos."],
+        [3, "Desarrollo de la funcionalidad principal", "Carlos Rodríguez", "2025-03-11", "2025-03-20", "Pending", "Pendiente de revisión inicial."],
+    ]
+
+    # Agregar las tareas al reporte de seguimiento
+    for task in tasks:
+        ws_tracking.append(task)
+
     # Guarda el archivo Excel
     wb.save(excel_path)
 
@@ -79,9 +111,8 @@ def create_project_structure(project_name):
         readme_file.write("```\n")
         readme_file.write(f"{project_name}/\n")
         readme_file.write("├── 1.doc/\n")
-        readme_file.write("│   ├── architecture/ \n" )
-        readme_file.write("│   ├── gantt/\n")
-        readme_file.write("│   └── modulo3/\n")
+        for subdir in doc_subdirectories:
+            readme_file.write(f"│   ├── {subdir}/\n")
         readme_file.write("├── 2.comms/\n")
         readme_file.write("│   ├── meeting_minutes/\n")
         readme_file.write("│   ├── progress_reports/\n")
@@ -112,7 +143,7 @@ def create_project_structure(project_name):
         readme_file.write("\n## Proceso de Comunicación\n")
         readme_file.write("La comunicación dentro del equipo se gestionará a través de reuniones semanales y herramientas como [Slack, Microsoft Teams, etc.].\n")
 
-    print(f"Estructura del proyecto '{project_name}' creada exitosamente! ")
+    print(f"Estructura del proyecto '{project_name}' creada exitosamente con el reporte de seguimiento! ")
 
 # Pide al usuario el nombre del proyecto
 project_name = input("Ingresa el nombre del proyecto: ")
